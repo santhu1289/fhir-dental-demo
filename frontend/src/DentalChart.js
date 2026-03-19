@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { TOOTH_SHAPES } from "./ToothShapes";
 import { AdultTeeth } from "./AdultTeeth";
 import { ChildTeeth } from "./ChildTeeth";
-
+import { Switch } from "./components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -47,19 +47,27 @@ function DentalChart({
   return (
     <div>
 
-      {/* MODE SELECT */}
-      <div className="mb-4 w-[200px]">
-        <Select value={mode} onValueChange={setMode}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Mode" />
-          </SelectTrigger>
+      
+      {/* 🔥 SWITCH (replaces dropdown) */}
+      <div className="mb-4 flex items-center gap-3 bg-gray-100 p-3 rounded">
 
-          <SelectContent>
-            <SelectItem value="adult">Adult</SelectItem>
-            <SelectItem value="child">Child</SelectItem>
-          </SelectContent>
-        </Select>
+        <span className={mode === "adult" ? "font-semibold" : "text-gray-500"}>
+          Adult
+        </span>
+
+        <Switch
+          checked={mode === "child"}
+          onCheckedChange={(checked) =>
+            setMode(checked ? "child" : "adult")
+          }
+        />
+
+        <span className={mode === "child" ? "font-semibold" : "text-gray-500"}>
+          Child
+        </span>
+
       </div>
+
 
       <svg width="880" height="360">
 

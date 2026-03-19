@@ -13,7 +13,7 @@ app.post("/save-condition", async (req, res) => {
   console.log("Request received from frontend:");
   console.log(req.body);
 
-  const { patientId, tooth, surface, code, display } = req.body;
+  const { patientId, tooth, code, display } = req.body;
 
   const condition = {
     resourceType: "Condition",
@@ -28,7 +28,7 @@ app.post("/save-condition", async (req, res) => {
       }]
     },
     bodySite: [{
-      text: `Tooth ${tooth} - ${surface}`
+      text: `Tooth ${tooth}`
     }]
   };
 

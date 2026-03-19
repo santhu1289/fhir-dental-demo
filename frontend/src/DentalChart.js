@@ -21,7 +21,8 @@ function DentalChart({
   status,
   hoveredTooth,
   setHoveredTooth,
-  setCondition
+  setCondition,
+  resetAllData   
 }) {
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -56,10 +57,18 @@ function DentalChart({
         </span>
 
         <Switch
-          checked={mode === "child"}
-          onCheckedChange={(checked) =>
-            setMode(checked ? "child" : "adult")
-          }
+         onCheckedChange={(checked) => {
+  const newMode = checked ? "child" : "adult";
+  setMode(newMode);
+
+  // 🔥 RESET EVERYTHING
+  setActiveTooth(null);
+  setSelectedCondition("");
+  setHoveredTooth(null);
+  setOpenDialog(false);
+
+  resetAllData(); // 💥 THIS WAS MISSING
+}}
         />
 
         <span className={mode === "child" ? "font-semibold" : "text-gray-500"}>

@@ -3,18 +3,7 @@ import { TOOTH_SHAPES } from "./ToothShapes";
 import { AdultTeeth } from "./AdultTeeth";
 import { ChildTeeth } from "./ChildTeeth";
 import { Switch } from "./components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select";
-
-import {
-  Dialog,
-  DialogContent
-} from "./components/ui/dialog";
+import { Dialog, DialogContent } from "./components/ui/dialog";
 
 function DentalChart({
   onSelectTooth,
@@ -22,9 +11,8 @@ function DentalChart({
   hoveredTooth,
   setHoveredTooth,
   setCondition,
-  resetAllData   
+  resetAllData
 }) {
-
   const [openDialog, setOpenDialog] = useState(false);
   const [activeTooth, setActiveTooth] = useState(null);
   const [selectedCondition, setSelectedCondition] = useState("");
@@ -32,14 +20,19 @@ function DentalChart({
 
   const teeth = mode === "adult" ? AdultTeeth : ChildTeeth;
 
+  const scaleMap = {
+    incisor: 0.5,
+    canine: 0.75,
+    premolar: 0.5,
+    molar: 0.3,
+  };
+
   const getToothColor = (tooth) => {
     const cond = status?.[tooth];
-
     if (cond === "caries") return "yellow";
     if (cond === "infection") return "red";
     if (cond === "extracted") return "gray";
     if (cond === "filling") return "skyblue";
-
     return "#d3bebe";
   };
 
@@ -48,60 +41,53 @@ function DentalChart({
   return (
     <div>
 
-      
-      {/* 🔥 SWITCH (replaces dropdown) */}
+      {/* SWITCH */}
       <div className="mb-4 flex items-center gap-3 bg-gray-100 p-3 rounded">
-
         <span className={mode === "adult" ? "font-semibold" : "text-gray-500"}>
           Adult
         </span>
 
         <Switch
-         onCheckedChange={(checked) => {
-  const newMode = checked ? "child" : "adult";
-  setMode(newMode);
+          onCheckedChange={(checked) => {
+            const newMode = checked ? "child" : "adult";
+            setMode(newMode);
 
-  // 🔥 RESET EVERYTHING
-  setActiveTooth(null);
-  setSelectedCondition("");
-  setHoveredTooth(null);
-  setOpenDialog(false);
+            setActiveTooth(null);
+            setSelectedCondition("");
+            setHoveredTooth(null);
+            setOpenDialog(false);
 
-  resetAllData(); // 💥 THIS WAS MISSING
-}}
+            resetAllData();
+          }}
         />
 
         <span className={mode === "child" ? "font-semibold" : "text-gray-500"}>
           Child
         </span>
-
       </div>
-
 
       <svg width="880" height="360">
 
-        {/* ADULT */}
+        {/* GUIDELINES */}
         {mode === "adult" && (
           <>
-            <line x1="450" y1="0" x2="450" y2="250" stroke="#444" />
+            <line x1="440" y1="0" x2="440" y2="250" stroke="#444" />
             <line x1="20" y1="130" x2="870" y2="130" stroke="#444" />
             <text x="20" y="120">Right</text>
             <text x="845" y="120">Left</text>
           </>
         )}
 
-        {/* CHILD */}
+          {/* CHILD */}
         {mode === "child" && (
           <>
-            <line x1="380" y1="0" x2="380" y2="250" stroke="#444" />
+            <line x1="370" y1="0" x2="370" y2="260" stroke="#444" />
             <line x1="120" y1="130" x2="630" y2="130" stroke="#444" />
             <text x="120" y="120">Right</text>
             <text x="610" y="120">Left</text>
           </>
-        )}
-
+        )} {/* 🦷 TEETH */}
         {teeth.map((tooth) => {
-
           const isHovered = hoveredTooth === tooth.id;
 
           const isUpper =
@@ -111,12 +97,15 @@ function DentalChart({
           let fillColor = getToothColor(tooth.id);
           if (isHovered) fillColor = "#cce6ff";
 
+          const scale = scaleMap[tooth.type];
+
           return (
             <g
               key={tooth.id}
-              transform={`translate(${tooth.x},${tooth.y}) ${
-                isUpper ? "scale(1,-1) translate(0,-40)" : ""
-              }`}
+              transform={`
+                translate(${tooth.x},${tooth.y})
+                ${isUpper ? "scale(1,-1)" : ""}
+              `}
               onClick={() => {
                 setActiveTooth(tooth.id);
                 setSelectedCondition(status?.[tooth.id] || "");
@@ -126,20 +115,34 @@ function DentalChart({
               onMouseLeave={() => setHoveredTooth(null)}
               style={{ cursor: "pointer" }}
             >
-
-              <path d={TOOTH_SHAPES[tooth.type]} fill={fillColor} stroke="#333" />
-
-              <text
-                x="33"
-                y="20"
-                textAnchor="middle"
-                fontSize="10"
-                transform={isUpper ? "scale(1,-1) translate(0,-30)" : ""}
-              >
-                {tooth.id}
-              </text>
-
+              <g transform={`scale(${scale}) translate(-50,-50)`}>
+                <path
+                  d={TOOTH_SHAPES[tooth.type]}
+                  fill={fillColor}
+                  stroke="#333"
+                />
+              </g>
             </g>
+          );
+        })}
+
+        {/* 🔢 LABELS (FIXED & PERFECTLY ALIGNED) */}
+        {teeth.map((tooth) => {
+          const isUpper =
+            (mode === "adult" && tooth.id >= 1 && tooth.id <= 16) ||
+            (mode === "child" && upperChildTeeth.includes(tooth.id));
+
+          return (
+            <text
+              key={`label-${tooth.id}`}
+              x={tooth.x + 20}
+              y={isUpper ? 105 : 160}   // 🔥 tweak here if needed
+              textAnchor="middle"
+              fontSize="11"
+              fill="#333"
+            >
+              {tooth.id}
+            </text>
           );
         })}
 
@@ -148,7 +151,6 @@ function DentalChart({
       {/* DIALOG */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent>
-
           <h2 className="mb-4 font-semibold">
             Tooth {activeTooth}
           </h2>
@@ -175,7 +177,6 @@ function DentalChart({
           >
             Continue
           </button>
-
         </DialogContent>
       </Dialog>
 

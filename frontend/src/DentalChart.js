@@ -86,7 +86,7 @@ function DentalChart({
             <text x="120" y="120">Right</text>
             <text x="610" y="120">Left</text>
           </>
-        )} {/* 🦷 TEETH */}
+        )} {/* TEETH */}
         {teeth.map((tooth) => {
           const isHovered = hoveredTooth === tooth.id;
 
@@ -126,7 +126,7 @@ function DentalChart({
           );
         })}
 
-        {/* 🔢 LABELS (FIXED & PERFECTLY ALIGNED) */}
+        {/* LABELS (FIXED & PERFECTLY ALIGNED) */}
         {teeth.map((tooth) => {
           const isUpper =
             (mode === "adult" && tooth.id >= 1 && tooth.id <= 16) ||
